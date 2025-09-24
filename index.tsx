@@ -928,9 +928,29 @@ function initializeGenderSwapTool() {
   const downloadButton = document.getElementById(
     'download-button',
   ) as HTMLButtonElement;
+  const transformationTypeContainer =
+    document.getElementById('transformation-type')!;
 
   let uploadedFile: File | null = null;
   transformButton.disabled = true;
+
+  const resetToolState = () => {
+    uploadedFile = null;
+    imageUploadInput.value = ''; // Clear the file input
+    originalImagePreview.src = '#';
+    originalImagePreview.classList.add('hidden');
+    uploadPrompt.classList.remove('hidden');
+    transformButton.disabled = true;
+    transformedImage.src = '#';
+    transformedImage.classList.add('hidden');
+    resultPlaceholder.classList.remove('hidden');
+    errorMessage.classList.add('hidden');
+    errorMessage.textContent = ''; // Clear any previous error message
+    loader.classList.add('hidden');
+    downloadButton.classList.add('hidden');
+  };
+
+  transformationTypeContainer.addEventListener('change', resetToolState);
 
   imageUploader.addEventListener('click', () => imageUploadInput.click());
   imageUploadInput.addEventListener('change', () => {
@@ -967,6 +987,21 @@ function initializeGenderSwapTool() {
     downloadButton.classList.add('hidden');
 
     try {
+      const selectedDirection = (
+        document.querySelector(
+          'input[name="gender-swap-direction"]:checked',
+        ) as HTMLInputElement
+      )?.value;
+
+      let promptText = '';
+      if (selectedDirection === 'female-to-male') {
+        promptText =
+          "Realistically transform the female in the image into a male. The transformation should be grounded in reality, reflecting plausible changes in facial structure, jawline, and brow. Maintain the subject's ethnicity and core facial identity. Dress the person in contemporary, casual male clothing, avoiding any costume-like or stereotypical attire.";
+      } else {
+        // Default to male-to-female
+        promptText =
+          "Realistically transform the male in the image into a female. The transformation should be grounded in reality, reflecting plausible changes in facial structure like softer features and a less prominent brow. Maintain the subject's ethnicity and core facial identity. Dress the person in contemporary, casual female clothing, avoiding any costume-like or stereotypical attire.";
+      }
       const ai = new GoogleGenAI({apiKey: process.env.API_KEY!});
       const imagePart = await fileToGenerativePart(uploadedFile);
 
@@ -976,7 +1011,7 @@ function initializeGenderSwapTool() {
           parts: [
             imagePart,
             {
-              text: 'Gender swap: transform the person in the image to a female. Preserve their unique facial features, bone structure, and ethnicity as much as possible for a realistic result.',
+              text: promptText,
             },
           ],
         },
@@ -1109,7 +1144,7 @@ Unless required by applicable law or agreed to in writing, software
 
 distributed under the License is distributed on an "AS IS" BASIS,
 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+WITHOUT WARRANTIES OR CONDITIONS OF ANY, either express or implied.
 
 See the License for the specific language governing permissions and
 
