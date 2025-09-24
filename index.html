@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Get Started with Gemini API JS/TS SDK</title>
+    <link rel="stylesheet" href="index.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.run/@google/genai",
+    "safevalues/dom": "https://cdn.jsdelivr.net/npm/safevalues@1.2.0/dist/mjs/dom/index.js",
+    "safevalues/": "https://esm.sh/safevalues@^1.2.0/",
+    "safevalues": "https://cdn.jsdelivr.net/npm/safevalues@1.2.0/dist/mjs/index.js",
+    "markdown-it": "https://esm.sh/markdown-it@^14.1.0",
+    "sortablejs": "https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/modular/sortable.complete.esm.js",
+    "monaco-editor/": "https://esm.sh/monaco-editor@^0.52.2/",
+    "@monaco-editor/loader": "https://esm.sh/@monaco-editor/loader@^1.5.0",
+    "monaco-editor": "https://aistudiocdn.com/monaco-editor@^0.53.0"
+  }
+}
+</script>
+
+    <link rel="stylesheet" href="/index.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="file-info">
+        <i class="fa-regular fa-file-lines"></i>
+        <span id="notebook-title">Get Started with Gemini API JS/TS SDK</span>
+      </div>
+      <nav class="menu-bar">
+        <div class="menu-item">
+          <button class="menu-button">File</button>
+          <div class="dropdown-content">
+            <button id="new-btn">New</button>
+            <button id="download-btn">Download (.js)</button>
+            <button id="github-btn">View on GitHub</button>
+          </div>
+        </div>
+        <div class="menu-item">
+          <button class="menu-button">Edit</button>
+          <div class="dropdown-content">
+            <button id="cut-cell-btn">Cut Cell</button>
+            <button id="copy-cell-btn">Copy Cell</button>
+            <button id="paste-cell-btn">Paste Cell</button>
+          </div>
+        </div>
+        <div class="menu-item">
+          <button class="menu-button">View</button>
+          <div class="dropdown-content">
+            <button id="toggle-fullscreen-btn">Toggle Fullscreen</button>
+            <button id="toggle-line-numbers-btn">Toggle Line Numbers</button>
+          </div>
+        </div>
+        <div class="menu-item">
+          <button class="menu-button">Insert</button>
+          <div class="dropdown-content">
+            <button id="insert-code-btn">Insert Code Cell</button>
+            <button id="insert-md-btn">Insert Markdown Cell</button>
+            <button id="insert-code-above-btn">Insert Code Above</button>
+            <button id="insert-md-above-btn">Insert Markdown Above</button>
+          </div>
+        </div>
+        <div class="menu-item">
+          <button class="menu-button">Runtime</button>
+          <div class="dropdown-content">
+            <button id="run-all-btn">Run All</button>
+            <button id="restart-kernel-btn">Restart Kernel</button>
+            <button id="restart-run-all-btn">Restart & Run All</button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div id="gender-swap-tool" class="my-4 mx-auto max-w-4xl p-6 bg-[#252526] rounded-lg shadow-lg text-white">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-100">Gender Swap AI</h2>
+            <p class="text-gray-400 mt-2">Upload a portrait and our AI will realistically envision the person as a different gender, preserving core facial features. This process is often called a 'Gender Swap'.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <!-- Original Image -->
+            <div class="flex flex-col items-center">
+                <h3 class="text-lg font-semibold text-gray-300 mb-2">Original</h3>
+                <div id="image-uploader" class="w-full h-64 bg-[#1e1e1e] border-2 border-dashed border-gray-500 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-400 transition-colors">
+                    <div id="upload-prompt" class="text-center text-gray-400">
+                        <svg class="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="mt-1">Click to upload an image</p>
+                    </div>
+                    <img id="original-image-preview" src="#" alt="Original Image" class="hidden w-full h-full object-contain rounded-lg"/>
+                    <input type="file" id="image-upload-input" class="hidden" accept="image/*">
+                </div>
+            </div>
+
+            <!-- Transformed Image -->
+            <div class="flex flex-col items-center">
+                <h3 class="text-lg font-semibold text-gray-300 mb-2">Transformed</h3>
+                <div id="result-container" class="w-full h-64 bg-[#1e1e1e] border border-gray-600 rounded-lg flex items-center justify-center relative">
+                    <div id="result-placeholder" class="text-center text-gray-500">
+                        <p>AI-generated image will appear here.</p>
+                    </div>
+                    <div id="loader" class="hidden absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-white">
+                        <svg class="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="mt-2">Transforming...</p>
+                    </div>
+                    <img id="transformed-image" src="#" alt="Transformed Image" class="hidden w-full h-full object-contain rounded-lg"/>
+                     <p id="error-message" class="hidden text-red-400 p-4 text-center"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-center items-center gap-4">
+            <button id="transform-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">
+                Transform Image
+            </button>
+            <button id="download-button" class="hidden bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                Download Image
+            </button>
+        </div>
+    </div>
+
+    <div id="notebook"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
